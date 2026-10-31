@@ -13,6 +13,22 @@ A single-page standings site for the East Portal Bocce Club Friday night league.
 
 The sheet must be shared as **Anyone with the link → Viewer**.
 
+**Optional per-season tabs** (the page uses them when present):
+
+- `<season> Schedule`: `Date | Court | Team | Opponent`, one row per match, byes as `Opponent = BYE`. Adds opponents, the head-to-head grid, the "This Friday" card, named rematch pairs with "play by" dates (make-ups within 2 weeks, Rules §3), and a "Results to check" list when the two teams' results disagree.
+- `<season> Teams`: `Team | Short | Captain`. `Short` is the label used in tight spots like the head-to-head grid.
+
+## New season
+
+The league sends a schedule PDF (and roster PDF) before each season. Turn them into sheet tabs with:
+
+```
+uv run tools/season_import.py --season "2027 Spring" \
+  --schedule "Schedule-Friday Spring 2027.pdf" --roster "Roster-Friday 630PM.pdf" --with-results
+```
+
+That writes `2027 Spring import.xlsx` with the results grid (byes pre-filled, dropdowns, W/L totals), the Schedule tab and the Teams tab. In Google Sheets: File → Import → Upload → **Insert new sheet(s)**. Then add the row it prints to the top of the Seasons tab. Team-name typos in the PDFs are matched to the closest name automatically, and the script warns about anything it can't match.
+
 ## Configuration
 
 `SHEET_ID` near the top of the script in `index.html`.
