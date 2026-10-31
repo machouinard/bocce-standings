@@ -20,3 +20,5 @@ The sheet must be shared as **Anyone with the link → Viewer**.
 ## Standings rules
 
 Sorted by win percentage, then wins, then fewest losses. GB = games behind the leader. Teams with identical records share a rank.
+
+That's it.
