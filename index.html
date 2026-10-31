@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>East Portal Bocce Standings</title>
+<meta name="description" content="Live standings for the East Portal Bocce Club Friday night league.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f3ec;
+  --surface: #ffffff;
+  --ink: #1d2a24;
+  --muted: #5f6b65;
+  --line: #e2ddd1;
+  --accent: #1f5a43;
+  --accent-ink: #ffffff;
+  --win-bg: #dcefe3; --win-ink: #17603c;
+  --loss-bg: #f6dcdc; --loss-ink: #8c2626;
+  --ff-bg: #fbe6c8; --ff-ink: #85500c;
+  --bye-ink: #a03a3a;
+  --owed-bg: #fff6d6; --owed-ink: #7a5a00; --owed-line: #e8cf72;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121714; --surface: #1a211d; --ink: #e9eee9; --muted: #9aa69f; --line: #2b352f;
+    --accent: #5fbf8f; --accent-ink: #0d1a13;
+    --win-bg: #1d3a2a; --win-ink: #8fe0b2;
+    --loss-bg: #3d2223; --loss-ink: #f2a7a7;
+    --ff-bg: #3d2e17; --ff-ink: #f3c27a;
+    --bye-ink: #e88f8f;
+    --owed-bg: #332c12; --owed-ink: #f0d46e; --owed-line: #6b5a1d;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121714; --surface: #1a211d; --ink: #e9eee9; --muted: #9aa69f; --line: #2b352f;
+  --accent: #5fbf8f; --accent-ink: #0d1a13;
+  --win-bg: #1d3a2a; --win-ink: #8fe0b2;
+  --loss-bg: #3d2223; --loss-ink: #f2a7a7;
+  --ff-bg: #3d2e17; --ff-ink: #f3c27a;
+  --bye-ink: #e88f8f;
+  --owed-bg: #332c12; --owed-ink: #f0d46e; --owed-line: #6b5a1d;
+  --shadow: none;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 15px/1.45 Inter, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 960px; margin: 0 auto; padding: 28px 16px 48px; }
+header { margin-bottom: 22px; }
+.club { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: Fraunces, Georgia, serif; font-weight: 800; font-size: clamp(28px, 6vw, 40px); line-height: 1.1; margin: 4px 0 6px; }
+.sub { color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.note { display: inline-block; background: var(--owed-bg); color: var(--owed-ink); border: 1px solid var(--owed-line); border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600; }
+.season-pick { margin-left: auto; }
+select {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 6px 10px;
+}
+section { margin-top: 26px; }
+h2 { font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 20px; margin: 0 0 10px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 10px 8px; text-align: center; white-space: nowrap; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--line); }
+tbody tr + tr td { border-top: 1px solid var(--line); }
+td.team, th.team { text-align: left; }
+td.team { font-weight: 600; }
+td.rank { color: var(--muted); width: 2.2em; font-variant-numeric: tabular-nums; }
+td.num { font-variant-numeric: tabular-nums; }
+td.pct { font-weight: 700; font-variant-numeric: tabular-nums; }
+tr.leader td.rank { color: var(--accent); font-weight: 700; }
+.streak { font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 7px; }
+.streak.W { background: var(--win-bg); color: var(--win-ink); }
+.streak.L { background: var(--loss-bg); color: var(--loss-ink); }
+.owed-pill { font-size: 12px; font-weight: 700; background: var(--owed-bg); color: var(--owed-ink); border: 1px solid var(--owed-line); border-radius: 999px; padding: 1px 8px; }
+.dash { color: var(--muted); }
+@media (max-width: 560px) {
+  .hide-sm { display: none; }
+  th, td { padding: 9px 5px; }
+  td.team { white-space: normal; min-width: 8em; }
+}
+
+.owed-list { list-style: none; margin: 0; padding: 0; }
+.owed-list li { display: flex; justify-content: space-between; gap: 12px; padding: 11px 14px; }
+.owed-list li + li { border-top: 1px solid var(--line); }
+.owed-list .when { color: var(--muted); font-size: 14px; text-align: right; }
+.empty { padding: 14px; color: var(--muted); }
+
+.grid th, .grid td { padding: 6px 3px; font-size: 13px; }
+.grid th.week { border-left: 1px solid var(--line); }
+.grid td.g1 { border-left: 1px solid var(--line); }
+.grid td.team, .grid th.team {
+  position: sticky; left: 0; background: var(--surface); z-index: 1; padding-left: 12px; padding-right: 10px;
+  font-size: 14px; box-shadow: 1px 0 0 var(--line);
+}
+.r { display: inline-block; min-width: 26px; padding: 3px 0; border-radius: 5px; font-weight: 700; font-size: 12px; }
+.r.W { background: var(--win-bg); color: var(--win-ink); }
+.r.L { background: var(--loss-bg); color: var(--loss-ink); }
+.r.F { background: var(--ff-bg); color: var(--ff-ink); }
+.r.BYE { color: var(--bye-ink); font-size: 10px; letter-spacing: .02em; }
+.r.owed { background: var(--owed-bg); border: 1px dashed var(--owed-line); color: var(--owed-ink); }
+.r.future { color: var(--line); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 10px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+footer { margin-top: 30px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+footer a { color: var(--accent); }
+.status { padding: 40px 16px; text-align: center; color: var(--muted); }
+.status.err { color: var(--loss-ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="club">East Portal Bocce Club</div>
+    <h1 id="title">Standings</h1>
+    <div class="sub">
+      <span id="subtitle"></span>
+      <span id="note"></span>
+      <label class="season-pick" id="pickWrap" hidden>
+        <select id="pick" aria-label="Season"></select>
+      </label>
+    </div>
+  </header>
+
+  <main id="main"><div class="status">Loading standings…</div></main>
+
+  <footer>
+    <span>W = Win · L = Loss · F = Forfeit (counts as a loss)</span>
+    <span id="updated"></span>
+  </footer>
+</div>
+
+<script>
+// ---- Configuration ---------------------------------------------------------
+// The Google Sheet that holds the results. It must be shared as
+// "Anyone with the link: Viewer".
+const SHEET_ID = "1miUoIW9SfAvgpenrAoiXBBaoT2Tz7JySQedyDTllIT4";
+const SEASONS_TAB = "Seasons";
+// ----------------------------------------------------------------------------
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function csvUrl(tab) {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(tab)}&_=${Date.now()}`;
+}
+
+function parseCSV(text) {
+  const rows = []; let row = []; let field = ""; let q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') q = false;
+      else field += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); rows.push(row); row = []; field = "";
+    } else field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+async function fetchTab(tab) {
+  const res = await fetch(csvUrl(tab));
+  if (!res.ok) throw new Error(`Could not load "${tab}" (HTTP ${res.status})`);
+  const text = await res.text();
+  if (text.trim().startsWith("<")) throw new Error("The sheet isn't shared publicly yet.");
+  return parseCSV(text).map((r) => r.map((v) => v.trim()));
+}
+
+const DATE_RE = /^(\d{1,2})\/(\d{1,2})$/;
+
+function buildSeason(rows, year) {
+  const header = rows[0] || [];
+  const weeks = []; // { label, date, cols: [i, j] }
+  header.forEach((h, i) => {
+    const m = h.match(DATE_RE);
+    if (!m) return;
+    let w = weeks.find((x) => x.label === h);
+    if (!w) {
+      w = { label: h, date: new Date(year, +m[1] - 1, +m[2]), cols: [] };
+      weeks.push(w);
+    }
+    w.cols.push(i);
+  });
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  weeks.forEach((w) => { w.past = w.date < today; });
+
+  const teams = rows.slice(1)
+    .filter((r) => r[0])
+    .map((r, order) => {
+      const t = { name: r[0], order, w: 0, l: 0, f: 0, owed: [], results: [], cells: [] };
+      weeks.forEach((wk) => {
+        const cells = wk.cols.map((c) => (r[c] || "").toUpperCase());
+        t.cells.push(cells);
+        let owedHere = 0;
+        cells.forEach((v) => {
+          if (v === "W") { t.w++; t.results.push("W"); }
+          else if (v === "L") { t.l++; t.results.push("L"); }
+          else if (v === "F") { t.l++; t.f++; t.results.push("L"); }
+          else if (v === "" && wk.past) owedHere++;
+        });
+        if (owedHere) t.owed.push({ week: wk, n: owedHere });
+      });
+      const gp = t.w + t.l;
+      t.pct = gp ? t.w / gp : 0;
+      // current streak
+      let s = 0; const last = t.results[t.results.length - 1];
+      for (let i = t.results.length - 1; i >= 0 && t.results[i] === last; i--) s++;
+      t.streak = last ? `${last}${s}` : "";
+      t.owedCount = t.owed.reduce((a, o) => a + o.n, 0);
+      return t;
+    });
+
+  const standings = [...teams].sort((a, b) =>
+    b.pct - a.pct || b.w - a.w || a.l - b.l || a.name.localeCompare(b.name));
+  const lead = standings[0];
+  standings.forEach((t, i) => {
+    t.gb = lead ? ((lead.w - t.w) + (t.l - lead.l)) / 2 : 0;
+    const prev = standings[i - 1];
+    t.rank = prev && prev.pct === t.pct && prev.w === t.w && prev.l === t.l ? prev.rank : i + 1;
+  });
+  return { weeks, teams, standings };
+}
+
+const fmtPct = (p) => p.toFixed(3).replace(/^0/, "");
+const fmtGB = (g) => (g === 0 ? "—" : (g % 1 ? g.toFixed(1) : String(g)));
+const fmtDate = (d) => d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+function render(season, s) {
+  const { weeks, teams, standings } = s;
+  const anyOwed = standings.some((t) => t.owedCount);
+
+  const standingsRows = standings.map((t) => `
+    <tr class="${t.rank === 1 ? "leader" : ""}">
+      <td class="rank">${t.rank}</td>
+      <td class="team">${esc(t.name)}</td>
+      <td class="num">${t.w}</td>
+      <td class="num">${t.l}</td>
+      <td class="pct">${fmtPct(t.pct)}</td>
+      <td class="num">${fmtGB(t.gb)}</td>
+      <td class="hide-sm">${t.streak ? `<span class="streak ${t.streak[0]}">${t.streak}</span>` : '<span class="dash">—</span>'}</td>
+      ${anyOwed ? `<td>${t.owedCount ? `<span class="owed-pill">${t.owedCount}</span>` : '<span class="dash">—</span>'}</td>` : ""}
+    </tr>`).join("");
+
+  const owedItems = teams.filter((t) => t.owedCount).map((t) => `
+    <li><span><strong>${esc(t.name)}</strong></span>
+    <span class="when">${t.owed.map((o) => `${fmtDate(o.week.date)}${o.n > 1 ? ` (${o.n} games)` : ""}`).join(", ")}</span></li>`).join("");
+
+  const gridHead = weeks.map((w) => `<th class="week" colspan="${w.cols.length}">${esc(w.label)}</th>`).join("");
+  const gridRows = teams.map((t) => `
+    <tr><td class="team">${esc(t.name)}</td>
+    ${t.cells.map((cells, wi) => cells.map((v, k) => {
+      const past = weeks[wi].past;
+      let cls = v, txt = v;
+      if (!v) { cls = past ? "owed" : "future"; txt = past ? "?" : "·"; }
+      return `<td class="${k === 0 ? "g1" : ""}"><span class="r ${cls}">${esc(txt)}</span></td>`;
+    }).join("")).join("")}
+    </tr>`).join("");
+
+  $("main").innerHTML = `
+    <section>
+      <h2>Standings</h2>
+      <div class="card scroll">
+        <table>
+          <thead><tr>
+            <th>#</th><th class="team">Team</th><th>W</th><th>L</th><th>Pct</th><th>GB</th>
+            <th class="hide-sm">Streak</th>${anyOwed ? "<th>Owed</th>" : ""}
+          </tr></thead>
+          <tbody>${standingsRows}</tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Rematches owed</h2>
+      <div class="card">
+        ${owedItems ? `<ul class="owed-list">${owedItems}</ul>` : '<div class="empty">None. Every game played so far is recorded.</div>'}
+      </div>
+    </section>
+
+    <section>
+      <h2>Week by week</h2>
+      <div class="card">
+        <div class="scroll">
+          <table class="grid">
+            <thead><tr><th class="team">Team</th>${gridHead}</tr></thead>
+            <tbody>${gridRows}</tbody>
+          </table>
+        </div>
+        <div class="legend">
+          <span><span class="r W">W</span> Win</span>
+          <span><span class="r L">L</span> Loss</span>
+          <span><span class="r F">F</span> Forfeit</span>
+          <span><span class="r BYE">BYE</span> Bye</span>
+          <span><span class="r owed">?</span> Rematch owed</span>
+        </div>
+      </div>
+    </section>`;
+  // On narrow screens, start the grid scrolled to the most recent weeks.
+  const grid = document.querySelector(".grid");
+  if (grid) grid.parentElement.scrollLeft = grid.parentElement.scrollWidth;
+}
+
+let seasons = [];
+
+async function loadSeason(tab) {
+  const season = seasons.find((s) => s.tab === tab) || seasons[0];
+  $("title").textContent = season.title || season.tab;
+  $("subtitle").textContent = "";
+  $("note").innerHTML = season.note ? `<span class="note">${esc(season.note)}</span>` : "";
+  document.title = `${season.title || season.tab} · East Portal Bocce`;
+  $("main").innerHTML = '<div class="status">Loading standings…</div>';
+  try {
+    const rows = await fetchTab(season.tab);
+    render(season, buildSeason(rows, season.year || new Date().getFullYear()));
+    $("updated").textContent = `Loaded ${new Date().toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}`;
+  } catch (e) {
+    $("main").innerHTML = `<div class="status err">${esc(e.message)}</div>`;
+  }
+}
+
+async function init() {
+  try {
+    const rows = await fetchTab(SEASONS_TAB);
+    const h = rows[0].map((x) => x.toLowerCase());
+    const col = (name) => h.indexOf(name);
+    seasons = rows.slice(1).filter((r) => r[col("tab")]).map((r) => ({
+      tab: r[col("tab")],
+      title: r[col("season")] || r[col("tab")],
+      year: parseInt(r[col("year")], 10) || new Date().getFullYear(),
+      note: col("note") >= 0 ? r[col("note")] : "",
+    }));
+    if (!seasons.length) throw new Error("No seasons listed on the Seasons tab.");
+  } catch (e) {
+    $("main").innerHTML = `<div class="status err">${esc(e.message)}</div>`;
+    return;
+  }
+
+  const pick = $("pick");
+  pick.innerHTML = seasons.map((s) => `<option value="${esc(s.tab)}">${esc(s.tab)}</option>`).join("");
+  $("pickWrap").hidden = seasons.length < 2;
+  const fromHash = decodeURIComponent(location.hash.slice(1));
+  const initial = seasons.some((s) => s.tab === fromHash) ? fromHash : seasons[0].tab;
+  pick.value = initial;
+  pick.addEventListener("change", () => { location.hash = encodeURIComponent(pick.value); });
+  window.addEventListener("hashchange", () => {
+    const t = decodeURIComponent(location.hash.slice(1));
+    if (seasons.some((s) => s.tab === t)) { pick.value = t; loadSeason(t); }
+  });
+  loadSeason(initial);
+}
+
+init();
+</script>
+</body>
+</html>
